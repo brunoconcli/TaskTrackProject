@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   mongo: 
-    image: mongodb/mongodb-community-server
+    image: docker.io/mongodb/mongodb-community-server:latest
     ports:
       - "3131:27017"
     container_name: mongocontainer 

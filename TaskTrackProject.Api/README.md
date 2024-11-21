@@ -138,3 +138,32 @@ podman build -t <nome_da_imagem>:latest -f .\Dockerfile
 podman run --name <nome_do_container> -p <porta_local>:<porta_exposta> localhost/<nome_da_imagem>:latest
 
 podman rm --all
+
+### Última grande revisão da aplicação
+
+Para recomeçar a linha de pensamento, recomecei toda a aplicação. O funcionamento da API manteve-se o mesmo, mas alterei o que era relacionado ao Dockerfile, docker-compose.yml, appsettings.json e launchSettings.json.
+
+**Primeiramente** Utilizei Docker para verificar uma possível falha na tecnologia podman. Estava errado, mas a ação me ajudou a compreender melhor a ferramenta de containerização em si.
+
+- Anteriormente, estava usando podman diretamente no terminal Windows [powershell], o que me obrigava à criação de uma máquina virtual.
+- Descobri que poderia usar WSL (uma máquina virtual por si próprio), o que me facilitou a interação com os containers.
+
+Duas coisas:
+- Tive de adicionar "Kestrel" ao meu appsettings.json. Sinceramente, não tenho certeza de sua importância verdadeira agora.
+- O que os containers precisam é de uma NETWORK para comunicarem-se entre si. A NETWORK pode ser criada de duas maneiras [principalmente] (vamos chamar a rede de exemplo de "mynet"):
+>`% docker network create --driver=bridge mynet`
+>Após a criação dos containers, adicioná-los à rede com: <br>
+>`% docker network connect mynet <container_name>`
+Ou <br>
+Utilizando docker compose, uma rede `default` será criada automaticamente, na qual ambos os containers no docker-compose.yml serão adicionados.
+
+**Além disso** em appsettings.json, tive de alterar a ConnectionURI do mongo para: "mongodb://mongo:27017" (no lugar de localhost), sendo "mongo" o nome do `service`.
+
+### Ou seja
+1. Instalar WSL, além de uma Distribution (Ubuntu, Fedora CoreOS, Debian)
+2. Instalar podman, seguido de podman-compose (sudo apt install podman-compose) (independente da ordem)
+3. Na pasta TaskTrackProject.Api, executar o comando `podman-compose up`
+- Ambos os containers do docker-compose.yml serão inicializados, além da network!
+- Para testar a conexão: `curl http://localhost:2140/api/Task`, por exemplo, considerando:
+> 2140: Porta mapeada localmente para a API (atualmente 6060 no Dockerfile)
+> api/Task: Rota para obter valores do banco (também rodando em outro container), como definido em appsettings.json
