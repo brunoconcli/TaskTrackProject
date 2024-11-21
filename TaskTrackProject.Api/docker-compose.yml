@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  mongo: 
+    image: mongodb/mongodb-community-server
+    ports:
+      - "3131:27017"
+    container_name: mongocontainer 
+  
+  api:
+    build: .
+    ports:
+      - "2140:6060"
+    container_name: apicontainer
