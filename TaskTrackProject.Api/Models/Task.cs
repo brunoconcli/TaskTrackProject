@@ -1,4 +1,4 @@
-namespace TaskListCli.Models;
+namespace TaskTrackProject.Api.Models;
 
 using MongoDB.Bson.Serialization.Attributes;
 

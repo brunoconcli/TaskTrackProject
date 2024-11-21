@@ -1,9 +1,9 @@
-using TaskListCli.Models;
+using TaskTrackProject.Api.Models;
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 
-namespace TaskListCli.Services;
+namespace TaskTrackProject.Api.Services;
 
 public class MongoDBService
 {

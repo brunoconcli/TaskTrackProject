@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using TaskListCli.Services;
-namespace TaskListCli.Controllers;
+using TaskTrackProject.Api.Services;
+namespace TaskTrackProject.Api.Controllers;
 
 [Controller]
 [Route("api/[controller]")]
