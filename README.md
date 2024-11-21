@@ -173,3 +173,6 @@ Utilizando docker compose, uma rede `default` será criada automaticamente, na q
 
 Select-item approach:
 https://dev.to/shibayan/how-to-build-an-interactive-command-line-application-in-net-4oic
+
+The addition of appsettings.json was manual, which resulted in problems related to the clone of thath file in the bin folder (that is not tracked by git)
+

@@ -47,7 +47,7 @@ public class MenuHandler
     // {
 
     // }
-    static void DisplayMenu() 
+    static void DisplayMenu(string infoMessage = "") 
     {
         Console.Clear();
         Console.WriteLine("Hoje:{} | Última atividade: ");
@@ -56,8 +56,29 @@ public class MenuHandler
             Console.WriteLine("{0}. {1}", option.Key, option.Value);
         }
 
-        // Console.WriteLine("\n0. Encerrar sessão");
-        Console.Write("\nEscolha o que deseja fazer (1-5): ");
+        Console.Write("\n" + infoMessage + "\nEscolha o que deseja fazer (1-5): ");
+        string chosenOption = Console.ReadLine();
+        HandleOptionChoice(chosenOption);
+    }
+
+    static async Task HandleOptionChoice (string chosenOption)
+    {
+        if (!int.TryParse(chosenOption, out _)) {
+            DisplayMenu(Colors.RED + "Opcao escolhida deve ser um número!" + Colors.RESET);
+        }
+        else
+        {
+            Console.WriteLine("Bout to get into switch, option is:" + chosenOption);
+            switch(chosenOption) 
+            {
+                case "1": 
+                    Console.WriteLine("Resultado abaixo");
+                    Console.WriteLine(await GetTasks());
+                    break;
+            }
+        }
+
+        
     }
 
     static void Exit() 
