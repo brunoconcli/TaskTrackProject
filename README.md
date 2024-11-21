@@ -167,3 +167,9 @@ Utilizando docker compose, uma rede `default` será criada automaticamente, na q
 - Para testar a conexão: `curl http://localhost:2140/api/Task`, por exemplo, considerando:
 > 2140: Porta mapeada localmente para a API (atualmente 6060 no Dockerfile)
 > api/Task: Rota para obter valores do banco (também rodando em outro container), como definido em appsettings.json
+
+
+## CONSOLE
+
+Select-item approach:
+https://dev.to/shibayan/how-to-build-an-interactive-command-line-application-in-net-4oic
