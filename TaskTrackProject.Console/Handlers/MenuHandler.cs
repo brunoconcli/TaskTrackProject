@@ -36,7 +36,7 @@ public class MenuHandler
             await ApiService.GetTasksAsync(_sharedClient)
         );
 
-        Console.WriteLine("Minhas tarefas");
+        Console.WriteLine(Colors.WHITE_BOLD + "> Minhas tarefas\n" + Colors.RESET);
         foreach (var jsonResponseObject in jsonResponseArray)
         {
             JObject currentObject = JObject.Parse(jsonResponseObject.ToString());
@@ -44,12 +44,26 @@ public class MenuHandler
         
             Console.WriteLine(checkboxPrefix + currentObject["description"]);
         }
+        BackToMenu();
     }
 
-    // public  void AddTask()
-    // {
-
-    // }
+    public static async Task AddTask()
+    {
+        Console.WriteLine(Colors.WHITE_BOLD + "> Adicionar nova tarefa\nEnvie '-' para cancelar.\n" + Colors.RESET);
+        Console.Write("Descrição: ");
+        string inputDescription = Console.ReadLine();
+        
+        if (inputDescription != "-")
+        {
+            await ApiService.AddTaskAsync(_sharedClient, inputDescription, false);
+            Console.WriteLine(Colors.GREEN + "\nAtividade adicionada com sucesso." + Colors.RESET);
+        }
+        else 
+        {
+            Console.WriteLine(Colors.YELLOW + "\nAdição de nova atividade cancelada." + Colors.RESET);
+        }
+        BackToMenu();
+    }
 
     // public  void UpdateTask() 
     // {
@@ -92,17 +106,24 @@ public class MenuHandler
         }
         else
         {
+            Console.Clear();
             switch(chosenOption) 
             {
                 case "1": 
-                    Console.Clear();
                     await GetTasks();
-                    Console.WriteLine("\nRetornar para o menu...");
-                    Console.ReadLine();
+                    break;
+                case "2":
+                    await AddTask();
                     break;
             }
         }
         await DisplayMenu(infoMessage);
+    }
+
+    static void BackToMenu()
+    {
+        Console.WriteLine("\nRetornar para o menu...");
+        Console.ReadLine();
     }
 
     static void Exit() 
