@@ -1,0 +1,12 @@
+{
+    "Actions:Create": "Criar tarefa",
+    "Actions:Delete": "Remover tarefa",
+    "Actions:Read": "Exibir tarefas",
+    "Actions:Update": "Editar tarefa",
+    "Messages:ChooseOption": "Escolha o que deseja fazer",
+    "Messages:ClosingSession": "Encerrando aplicação",
+    "Messages:ReturnToMenu": "Retornar para o menu",
+    "Messages:TaskBoard": "Minhas tarefas",
+    "Warnings:OptionMustBeANumber": "A opção escolhida deve ser um número",
+    "Warnings:OptionOutOfRange": "A opção deve ser um número positivo menor ou igual a 5"
+}
