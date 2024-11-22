@@ -9,14 +9,7 @@ public static class Menu
 {
     static async Task Main(string[] args) 
     {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .Build();
-        string baseUrl = configuration["ApiSettings:BaseUrl"];
-
-        MenuHandler.start();
-        // string menuHandlerTasks = await MenuHandler.GetTasks();
-        // Console.WriteLine(menuHandlerTasks);
+        await MenuHandler.start();
     }
 
     public static string GetBaseUrl() 
