@@ -7,12 +7,16 @@ using TaskTrackProject.Console.Services;
 
 public class MenuHandler
 {
-    private static ApiService _apiService;
+    private static HttpClient _sharedClient;
     private static Dictionary<string, string> _menuOptions;
 
     public static void start() 
     {
-        _apiService = new ApiService(Menu.GetBaseUrl());
+        _sharedClient = new HttpClient
+        {
+            BaseAddress = new Uri(Menu.GetBaseUrl())
+        };
+
         _menuOptions = new Dictionary<string, string>(){
             {"1", "Exibir tarefas"},
             {"2", "Criar tarefa"},
@@ -23,9 +27,9 @@ public class MenuHandler
         DisplayMenu();
     }
 
-    public static async Task<string> GetTasks() 
-    {
-        return await _apiService.GetTasksAsync();
+    public static async Task GetTasks() 
+    {        
+        Console.WriteLine(await ApiService.GetTasksAsync(_sharedClient));
     }
 
     // public  void AddTask()
@@ -63,22 +67,24 @@ public class MenuHandler
 
     static async Task HandleOptionChoice (string chosenOption)
     {
+        string infoMessage = "";
         if (!int.TryParse(chosenOption, out _)) {
-            DisplayMenu(Colors.RED + "Opcao escolhida deve ser um número!" + Colors.RESET);
+            infoMessage = Colors.RED + "A opção escolhida deve ser um número" + Colors.RESET;
+        }
+        else if (int.Parse(chosenOption) > 5 || int.Parse(chosenOption) < 0)
+        {
+            infoMessage = Colors.RED + "A opção deve ser um número positivo menor ou igual a 5" + Colors.RESET;
         }
         else
         {
-            Console.WriteLine("Bout to get into switch, option is:" + chosenOption);
             switch(chosenOption) 
             {
                 case "1": 
-                    Console.WriteLine("Resultado abaixo");
-                    Console.WriteLine(await GetTasks());
+                    await GetTasks();
                     break;
             }
         }
-
-        
+        DisplayMenu(infoMessage);
     }
 
     static void Exit() 
