@@ -29,7 +29,40 @@ public static class ApiService
             Encoding.UTF8, 
             "application/json"
         );
-        using HttpResponseMessage response = await httpClient.PostAsync("api/Task", jsonContentTask);
+        using HttpResponseMessage response = await httpClient.PostAsync(
+            "api/Task", 
+            jsonContentTask
+        );
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    public static async Task<string> UpdateTaskAsync(HttpClient httpClient, string id, string newDescription, bool newCompleted)
+    {
+        var jsonSerializedTask = JsonConvert.SerializedObject(new
+        {
+            Id = id,
+            Description = newDescription,
+            Completed = newCompleted
+        });
+
+        using StringContent jsonContentTask = new StringContent(
+            jsonSerializedTask,
+            Encoding.UTF8,
+            "application/json"
+        );
+        using HttpResponseMessage response = await httpClient.PutAsync(
+            "api/Task/" + jsonSerializedTask.Id,
+            jsonContentTask
+        );
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    public static async Task<string> DeleteTaskAsync(HttpClient httpClient, string id)
+    {
+        using HttpResponseMessage response = await httpClient.DeleteAsync("api/Task/" + id);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync();
