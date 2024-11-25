@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  mongo:
+    image: docker.io/mongodb/mongodb-community-server:latest
+    ports:
+      - "3131:27017"
+    container_name: mongocontainer
+
+  api:
+    build:
+      context: ./TaskTrackProject.Api
+      dockerfile: Dockerfile
+    ports:
+      - "2140:6060"
+    container_name: apicontainer
+    depends_on:
+      - mongo
+
+  console:
+    build:
+      context: ./TaskTrackProject.Console
+      dockerfile: Dockerfile
+    container_name: consolecontainer
+    stdin_open: true
+    tty: true
+    depends_on:
+      - api
