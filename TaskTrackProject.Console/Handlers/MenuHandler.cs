@@ -1,17 +1,17 @@
 namespace TaskTrackProject.Console.Handlers;
 using TaskTrackProject.Console.Services;
 using TaskTrackProject.Console.Shared;
-using System;
-using System.Net.Http;
-using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
 
 public class MenuHandler
 {
   private static HttpClient _sharedClient;
   private static Dictionary<string, string> _menuOptions;
-  private static JArray _currentTasksArray;
+  private static List<JObject> _currentTasksArray;
 
   public static async Task start()
   {
@@ -20,6 +20,7 @@ public class MenuHandler
       BaseAddress = new Uri(Menu.GetBaseUrl())
     };
 
+    _currentTasksArray = new List<JObject>();
     _menuOptions = new Dictionary<string, string>(){
             {"1", "Exibir tarefas"},
             {"2", "Criar tarefa"},
@@ -35,22 +36,27 @@ public class MenuHandler
     await UpdateCurrentTasksArray();
 
     Console.WriteLine(Colors.WHITE_BOLD + "> Minhas tarefas\n" + Colors.RESET);
-    foreach (var jsonResponseObject in _currentTasksArray)
+    if (_currentTasksArray.Count == 0)
     {
-      JObject currentObject = JObject.Parse(jsonResponseObject.ToString());
-      string checkboxPrefix = currentObject["completed"].ToObject<bool>() ? "[X] " : "[ ] ";
-
-      Console.WriteLine(checkboxPrefix + currentObject["description"]);
+      Console.WriteLine(Colors.YELLOW + "Não há atividades para exibir" + Colors.RESET);
+    }
+    else 
+    {
+      foreach (var item in _currentTasksArray)
+      {
+        string optionPrefix = item["completed"].ToObject<bool>() ? "[X]" : "[ ]";
+        Console.WriteLine(optionPrefix + " " + item["description"]);
+      }
     }
   }
 
   public static async Task AddTask()
   {
-    Console.WriteLine(Colors.WHITE_BOLD + "> Adicionar nova tarefa\nEnvie '-' para cancelar.\n" + Colors.RESET);
+    Console.WriteLine(Colors.WHITE_BOLD + "> Adicionar nova tarefa\nPressione [Enter] para cancelar.\n" + Colors.RESET);
     Console.Write("Descrição: ");
     string inputDescription = Console.ReadLine();
 
-    if (inputDescription != "-")
+    if (inputDescription.Length != 0)
     {
       await ApiService.AddTaskAsync(_sharedClient, inputDescription, false);
       Console.WriteLine(Colors.GREEN + "\nAtividade adicionada com sucesso." + Colors.RESET);
@@ -61,26 +67,71 @@ public class MenuHandler
     }
   }
 
-  // public  void UpdateTask() 
-  // {
+  public static async Task UpdateTask() 
+  {
+    await UpdateCurrentTasksArray();
+    Console.WriteLine("> Editar tarefa\nPressione [Enter] para cancelar.\n");
+    int optionIndex = 0;
+    foreach (var item in _currentTasksArray)
+    {
+      optionIndex++;
+      Console.WriteLine((optionIndex) + ". " + item["description"]);
+    }
 
-  // }
+    Console.Write("\nTarefa para edição (1-" + optionIndex + "): ");
+    string chosenTask = Console.ReadLine();
+
+    if (int.TryParse(chosenTask, out _))
+    {
+      string chosenTaskId = _currentTasksArray[int.Parse(chosenTask)-1]["id"].ToString();
+      string chosenTaskDescription = _currentTasksArray[int.Parse(chosenTask)-1]["description"].ToString();
+
+      Console.Write("\nNova descrição: ");
+      string newDescription = Console.ReadLine();
+
+      string response = await ApiService.UpdateTaskAsync(_sharedClient, chosenTaskId, newDescription, true);
+      Console.WriteLine(response);
+    }
+    else 
+    {
+      Console.WriteLine(Colors.YELLOW + "\nEdição de atividade cancelada." + Colors.RESET);
+    }
+  }
 
   public static async Task DeleteTask()
   {
     await UpdateCurrentTasksArray();
     Console.WriteLine(Colors.WHITE_BOLD + "> Remover tarefa\nPressione [Enter] para cancelar.\n" + Colors.RESET);
 
-    let counter = 0; // stawped heah [15:44]
-    foreach (var jsonResponseObject in _currentTasksArray)
+    if (_currentTasksArray.Count == 0) 
     {
-      JObject currentObject = JObject.Parse(jsonResponseObject.ToString());
-      string checkboxPrefix = currentObject["completed"].ToObject<bool>() ? "[X] " : "[ ] ";
-
-      Console.WriteLine(checkboxPrefix + currentObject["description"]);
+      Console.WriteLine(Colors.YELLOW + "Não há atividades para remover." + Colors.RESET);
     }
-    string response = await ApiService.DeleteTaskAsync();
-    Console.WriteLine(response);
+    else
+    {
+      int optionIndex = 0;
+      foreach (var item in _currentTasksArray)
+      {
+        optionIndex++;
+        string optionPrefix = item["completed"].ToObject<bool>() ? "[X]" : "[ ]";
+
+        Console.WriteLine((optionIndex) + ". " + optionPrefix + " " + item["description"]);
+      }
+
+      Console.Write("\nTarefa para deleção (1-" + optionIndex + "): ");
+      string chosenTask = Console.ReadLine(); 
+
+      if (int.TryParse(chosenTask, out _)) 
+      {
+        string chosenTaskId = _currentTasksArray[int.Parse(chosenTask)-1]["id"].ToString();
+        await ApiService.DeleteTaskAsync(_sharedClient, chosenTaskId);
+        Console.WriteLine(Colors.GREEN + "\nAtividade removida com sucesso." + Colors.RESET);
+      }
+      else
+      {
+        Console.WriteLine(Colors.YELLOW + "\nAdição de nova atividade cancelada." + Colors.RESET);
+      }
+    }
   }
 
   // public  void MarkAsComplete() 
@@ -124,6 +175,9 @@ public class MenuHandler
         case "2":
           await AddTask();
           break;
+        case "3":
+          await UpdateTask();
+          break;
         case "4":
           await DeleteTask();
           break;
@@ -135,10 +189,16 @@ public class MenuHandler
 
   static async Task UpdateCurrentTasksArray()
   {
-    _currentTasksArray = JArray.Parse(
+    _currentTasksArray.Clear();
+    JArray jsonTaskArray = JArray.Parse(
         (string)
         await ApiService.GetTasksAsync(_sharedClient)
     );
+    foreach (var jsonResponseObject in jsonTaskArray)
+    {
+      JObject currentObject = JObject.Parse(jsonResponseObject.ToString());      
+      _currentTasksArray.Add(currentObject);
+    }
   }
 
   static void BackToMenu()
