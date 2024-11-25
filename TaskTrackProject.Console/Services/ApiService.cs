@@ -1,10 +1,11 @@
 namespace TaskTrackProject.Console.Services;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Text;
+using System;
 using System.Collections.Generic;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 public static class ApiService
 {
@@ -40,22 +41,22 @@ public static class ApiService
 
     public static async Task<string> UpdateTaskAsync(HttpClient httpClient, string id, string newDescription, bool newCompleted)
     {
-        var jsonSerializedTask = JsonConvert.SerializedObject(new
-        {
-            Id = id,
-            Description = newDescription,
-            Completed = newCompleted
-        });
-
-        using StringContent jsonContentTask = new StringContent(
-            jsonSerializedTask,
+        using StringContent jsonContent = new(
+            System.Text.Json.JsonSerializer.Serialize(new
+            {
+                id = id,
+                description = newDescription,
+                completed = newCompleted
+            }),
             Encoding.UTF8,
             "application/json"
         );
+
         using HttpResponseMessage response = await httpClient.PutAsync(
-            "api/Task/" + jsonSerializedTask.Id,
-            jsonContentTask
+            $"api/Task/{id}",
+            jsonContent
         );
+
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }
