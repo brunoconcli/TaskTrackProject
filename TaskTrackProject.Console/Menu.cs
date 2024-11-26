@@ -1,18 +1,15 @@
-﻿using System;
-using System.Net.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using TaskTrackProject.Console.Handlers;
 
 public static class Menu 
 {
-    static ConfigurationBuilder builder = new ConfigurationBuilder();
-    builder.SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
-    IConfiguration config = builder.Build();
-
     static async Task Main(string[] args) 
     {
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true);
+        IConfiguration config = builder.Build();
+
         await MenuHandler.start();
     }
 

@@ -21,6 +21,8 @@ services:
       context: ./TaskTrackProject.Console
       dockerfile: Dockerfile
     container_name: consolecontainer
+    volumes:
+      - ./appsettings.json:/app/appsettings.json
     stdin_open: true
     tty: true
     depends_on:
