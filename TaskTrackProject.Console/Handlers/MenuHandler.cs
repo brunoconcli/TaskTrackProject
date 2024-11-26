@@ -12,6 +12,7 @@ public class MenuHandler
   private static Dictionary<string, string> _menuOptions;
   private static List<JObject> _currentTasksArray;
   private static string _lastActivityTime;
+  private static int _completedTasksCount;
 
   public static async Task start()
   {
@@ -27,14 +28,15 @@ public class MenuHandler
             {"4", "Remover tarefa"},
             {"5", "Marcar como completo"}
         };
+        
     _lastActivityTime = GetCurrentTime();
+    _completedTasksCount = 0;
     await DisplayMenu();
   }
 
   public static async Task GetTasks()
   {
     await UpdateCurrentTasksArray();
-
     Console.WriteLine(InterfaceConsts.HeaderGet);
     if (_currentTasksArray.Count == 0)
     {
@@ -88,13 +90,17 @@ public class MenuHandler
 
       if (int.TryParse(chosenTask, out _))
       {
-        string chosenTaskId = _currentTasksArray[int.Parse(chosenTask)-1]["id"].ToString();
+        int chosenTaskIndex = int.Parse(chosenTask)-1;
 
-        Console.Write("\nNova descrição: ");
-        string newDescription = Console.ReadLine();
+        if (chosenTaskIndex < optionIndex)
+        {
+          string chosenTaskId = _currentTasksArray[chosenTaskIndex]["id"].ToString();
+          Console.Write("\nNova descrição: ");
+          string newDescription = Console.ReadLine();
 
-        await ApiService.UpdateTaskAsync(_sharedClient, chosenTaskId, newDescription, false);
-        Console.WriteLine(InterfaceConsts.SuccessPut); 
+          await ApiService.UpdateTaskAsync(_sharedClient, chosenTaskId, newDescription, false);
+          Console.WriteLine(InterfaceConsts.SuccessPut); 
+        }
       }
       else 
       {
@@ -128,9 +134,13 @@ public class MenuHandler
 
       if (int.TryParse(chosenTask, out _)) 
       {
-        string chosenTaskId = _currentTasksArray[int.Parse(chosenTask)-1]["id"].ToString();
-        await ApiService.DeleteTaskAsync(_sharedClient, chosenTaskId);
-        Console.WriteLine(InterfaceConsts.SuccessDelete);
+        int chosenTaskIndex = int.Parse(chosenTask)-1;
+        if (chosenTaskIndex < optionIndex)
+        {
+          string chosenTaskId = _currentTasksArray[chosenTaskIndex]["id"].ToString();
+          await ApiService.DeleteTaskAsync(_sharedClient, chosenTaskId);
+          Console.WriteLine(InterfaceConsts.SuccessDelete);
+        }
       }
       else
       {
@@ -154,8 +164,8 @@ public class MenuHandler
       foreach (var item in _currentTasksArray)
       {
         optionIndex++;
-        if (item["completed"].ToObject<bool>())
-        Console.WriteLine((optionIndex) + ". [X] " + item["description"]);
+        if (!item["completed"].ToObject<bool>())
+        Console.WriteLine((optionIndex) + ". [ ] " + item["description"]);
       }
 
       Console.Write("\nTarefa para concluir (1-" + optionIndex + "): ");
@@ -164,11 +174,15 @@ public class MenuHandler
       if (int.TryParse(chosenTask, out _)) 
       {
         int chosenTaskIndex = int.Parse(chosenTask)-1;
-        string chosenTaskId = _currentTasksArray[chosenTaskIndex]["id"].ToString();
-        string chosenTaskDescription = _currentTasksArray[chosenTaskIndex]["description"].ToString();
+        if (chosenTaskIndex < optionIndex)
+        {
+          string chosenTaskId = _currentTasksArray[chosenTaskIndex]["id"].ToString();
+          string chosenTaskDescription = _currentTasksArray[chosenTaskIndex]["description"].ToString();
 
-        await ApiService.UpdateTaskAsync(_sharedClient, chosenTaskId, chosenTaskDescription, true);
-        Console.WriteLine(InterfaceConsts.SuccessMarkAsComplete);
+          await ApiService.UpdateTaskAsync(_sharedClient, chosenTaskId, chosenTaskDescription, true);
+          _completedTasksCount++;
+          Console.WriteLine(InterfaceConsts.SuccessMarkAsComplete);
+        }
       }
       else
       {
@@ -184,15 +198,16 @@ public class MenuHandler
       Colors.CYAN + 
       "Olá, usuário " + GetUsersOS() + " !\n" + 
       Colors.RESET +
-      GetCurrentDay() + " | Última atividade: " + _lastActivityTime + "\n"
+      GetCurrentDay() + " | Última atividade: " + _lastActivityTime + "\n" +
+      "Atividades completas: " + _completedTasksCount + "\n"
     );
 
     foreach (KeyValuePair<string, string> option in _menuOptions)
     {
-      Console.WriteLine("{0}. {1}", option.Key, option.Value);
+      Console.WriteLine(option.Key + ". " + option.Value);
     }
 
-    Console.Write("\n" + infoMessage + Colors.GREEN + "\nEscolha o que deseja fazer (1-5): " + Colors.RESET);
+    Console.Write("\n" + infoMessage + Colors.GREEN + "\nEscolha o que deseja fazer (1-" + _menuOptions.Count + "): " + Colors.RESET);
     string chosenOption = Console.ReadLine();
     await HandleOptionChoice(chosenOption);
   }
@@ -202,11 +217,11 @@ public class MenuHandler
     string infoMessage = "";
     if (!int.TryParse(chosenOption, out _))
     {
-      infoMessage = Colors.RED + "A opção escolhida deve ser um número" + Colors.RESET;
+      infoMessage = InterfaceConsts.ErrorOptionMustBeNumber;
     }
     else if (int.Parse(chosenOption) > 5 || int.Parse(chosenOption) < 0)
     {
-      infoMessage = Colors.RED + "A opção deve ser um número positivo menor ou igual a 5" + Colors.RESET;
+      infoMessage = InterfaceConsts.ErrorOptionMustBePositive;
     }
     else
     {
@@ -251,14 +266,14 @@ public class MenuHandler
 
   static void BackToMenu()
   {
-    Console.WriteLine("\nRetornar para o menu...");
+    Console.WriteLine(InterfaceConsts.InfoReturnToMenu);
     Console.ReadLine();
   }
 
   static void Exit()
   {
     // RegisterActivity();
-    Console.WriteLine("Encerrando aplicação...");
+    Console.WriteLine(InterfaceConsts.InfoEndingApplication);
     Environment.Exit(0);
   }
 
