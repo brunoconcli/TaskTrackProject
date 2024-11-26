@@ -41,19 +41,14 @@ public static class ApiService
 
     public static async Task<string> UpdateTaskAsync(HttpClient httpClient, string id, string newDescription, bool newCompleted)
     {
-        using StringContent jsonContent = new(
-            System.Text.Json.JsonSerializer.Serialize(new
-            {
-                id = id,
-                description = newDescription,
-                completed = newCompleted
-            }),
+        using StringContent jsonContent = new StringContent(
+            "",
             Encoding.UTF8,
             "application/json"
         );
 
         using HttpResponseMessage response = await httpClient.PutAsync(
-            $"api/Task/{id}",
+            $"api/Task/{id}?description={newDescription}&completed={newCompleted}",
             jsonContent
         );
 
