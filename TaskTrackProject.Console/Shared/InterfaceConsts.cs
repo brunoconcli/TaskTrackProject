@@ -1,22 +1,7 @@
 namespace TaskTrackProject.Console.Shared;
-using System;
-using System.IO;
-using System.Text;
-using System.Text.Json;
 
 public class InterfaceConsts 
 {
-    public const string Criar = "Actions:Create";
-    public const string Deletar = "Actions:Delete";
-    public const string Ler = "Actions:Read";
-    public const string Atualizar = "Actions:Update";
-    public const string EscolherOpcao = "Messages:ChooseOption";
-    public const string EncerrandoSessao = "Messages:ClosingSession";
-    public const string RetornarAoMenu = "Messages:ReturnToMenu";
-    public const string QuadroDeTarefas = "Messages:TaskBoard";
-    public const string OpcaoDeveSerUmNumero = "Warnings:OptionMustBeANumber";
-    public const string OpcaoForaDoAlcance = "Warnings:OptionOutOfRange";
-
     public const string HeaderGet = Colors.CYAN + "> Minhas tarefas\n" + Colors.RESET;
     public const string HeaderPost = Colors.CYAN + "> Adicionar nova tarefa" + Colors.MAGENTA + "\nPressione [Enter] para cancelar.\n" + Colors.RESET;
     public const string HeaderPut = Colors.CYAN + "> Editar tarefa" + Colors.MAGENTA + "\nPressione [Enter] para cancelar.\n" + Colors.RESET;
@@ -42,6 +27,7 @@ public class InterfaceConsts
     public const string ErrorOptionMustBePositive = Colors.RED + "A opção deve ser um número positivo menor ou igual a 5" + Colors.RESET;
 
     public const string InfoReturnToMenu = "\nRetornar para o menu...";
-    public const string InfoEndingApplication = "\nEncerrando aplicação...";
+    public const string InfoEndingApplication = Colors.RED + "\nEncerrando sessão..." + Colors.RESET;
 
+    public const string OptionEndApplication = "\n0. Encerrar aplicação";
 }

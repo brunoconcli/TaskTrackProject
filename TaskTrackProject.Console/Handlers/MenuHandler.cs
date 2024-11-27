@@ -206,7 +206,7 @@ public class MenuHandler
     {
       Console.WriteLine(option.Key + ". " + option.Value);
     }
-
+    Console.WriteLine(InterfaceConsts.OptionEndApplication);
     Console.Write("\n" + infoMessage + Colors.GREEN + "\nEscolha o que deseja fazer (1-" + _menuOptions.Count + "): " + Colors.RESET);
     string chosenOption = Console.ReadLine();
     await HandleOptionChoice(chosenOption);
@@ -228,6 +228,9 @@ public class MenuHandler
       Console.Clear();
       switch (chosenOption)
       {
+        case "0":
+          Exit();
+          break;
         case "1":
           await GetTasks();
           break;
@@ -272,7 +275,6 @@ public class MenuHandler
 
   static void Exit()
   {
-    // RegisterActivity();
     Console.WriteLine(InterfaceConsts.InfoEndingApplication);
     Environment.Exit(0);
   }
